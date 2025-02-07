@@ -1,11 +1,19 @@
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 
 public class TwentyFourPoint {
+    final static char[] OPERATORS = new char[] {'+', '-', '*', '/'};
+
+    final static BigDecimal TWENTY_FOUR = BigDecimal.valueOf(24.0d);
+    final static BigDecimal ZERO = BigDecimal.valueOf(0.0d);
+
     public static void main(String[] args) {
-        int[] digits = randomInt();
+//        int[] digits = randomInt();
+        int[] digits = new int[]{4, 4, 12, 9};
         for (int digit : digits) {
             System.out.print(digit + " ");
         }
@@ -13,23 +21,60 @@ public class TwentyFourPoint {
         System.out.println();
 
         List<int[]> listOfPermutation = fullPermute(digits);
-        char[] operators = new char[] {'+', '-', '*', '/'};
+        int i = 0;
         for (int[] permutation : listOfPermutation) {
-            for (char operator1 : operators) {
-                double result1 = calculate(operator1, permutation[0], permutation[1]);
-                for (char operator2 : operators) {
-                    double result2 = calculate(operator2, result1, permutation[2]);
-                    for (char operator3 : operators ) {
-                        double result3 = calculate(operator3, result2, permutation[3]);
-                        BigDecimal result = new BigDecimal(result3);
-                        if (result.equals(new BigDecimal(24))) {
-                            System.out.println("(((" + permutation[0] + " " + operator1 + " " + permutation[1] + ") " + operator2 + " " + permutation[2] + ") " + operator3  + " " + permutation[3] + ") = 24");
-                        }
-                    }
-                }
+            List<Double> operands = new LinkedList<>();
+            for (int digit : permutation) {
+                operands.add((double) digit);
+            }
+            List<String> solutions = calculateTwentyFour(operands);
+            for (String equation : solutions) {
+                i++;
+                System.out.println(i + ": " + equation);
             }
         }
+    }
 
+    private static List<String> calculateTwentyFour(List<Double> operands) {
+        Stack<String> operators = new Stack<>();
+        List<Stack<String>> solutions = new ArrayList<>();
+        calculateRecursively(operands, operators, solutions);
+        List<String> result = new ArrayList<>();
+        for (Stack<String> solution : solutions) {
+            StringBuilder sb = new StringBuilder();
+            for (String s : solution) {
+                sb.append(s);
+            }
+            result.add(sb.toString());
+        }
+        return result;
+    }
+
+    private static void calculateRecursively(List<Double> operands, Stack<String> operators, List<Stack<String>> solutions) {
+        if (operands.size() == 1) {
+            Double result = operands.get(0);
+            if (result.equals(Double.NaN)) {
+                return;
+            }
+            if (TWENTY_FOUR.equals(BigDecimal.valueOf(result))) {
+                solutions.add((Stack<String>) operators.clone());
+            }
+            return;
+        }
+        for (int i = 0; i < operands.size() - 1; i++) {
+            for (char operator : OPERATORS) {
+                double operand1 = operands.remove(i);
+                double operand2 = operands.remove(i);
+                double tmp = calculate(operator, operand1, operand2);
+                operands.add(i, tmp);
+                operators.push("" + operand1 + operator + operand2 + "=" + tmp + " ");
+                calculateRecursively(operands, operators, solutions);
+                operators.pop();
+                operands.remove(i);
+                operands.add(i, operand1);
+                operands.add(i + 1, operand2);
+            }
+        }
     }
 
     private static double calculate(char operator, double operand1, double operand2) {
@@ -39,10 +84,10 @@ public class TwentyFourPoint {
             return operand1 - operand2;
         } else if (operator == '*') {
             return operand1 * operand2;
-        } else if (operator == '/') {
+        } else if (operator == '/' && operand2 != 0) {
             return operand1 / operand2;
         } else {
-            return Double.NEGATIVE_INFINITY;
+            return Double.NaN;
         }
     }
 
