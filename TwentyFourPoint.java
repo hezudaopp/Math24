@@ -1,4 +1,3 @@
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,30 +7,30 @@ import java.util.Stack;
 public class TwentyFourPoint {
     final static char[] OPERATORS = new char[] {'+', '-', '*', '/'};
 
-    final static BigDecimal TWENTY_FOUR = BigDecimal.valueOf(24.0d);
-    final static BigDecimal ZERO = BigDecimal.valueOf(0.0d);
-
     public static void main(String[] args) {
+//        int[][] matrix = new int[][]{{1, 5, 5, 5}, {5, 2, 5, 10}, {4, 4, 10, 10}, {3, 3, 7, 7}, {3, 3, 8, 8}};
+        int[][] matrix = new int[][]{{3, 3, 8, 8}};
+        for (int[] digits : matrix) {
 //        int[] digits = randomInt();
-        int[] digits = new int[]{4, 4, 12, 9};
-        for (int digit : digits) {
-            System.out.print(digit + " ");
-        }
-        System.out.println();
-        System.out.println();
+            for (int digit : digits) {
+                System.out.print(digit + " ");
+            }
+            System.out.println();
 
-        List<int[]> listOfPermutation = fullPermute(digits);
-        int i = 0;
-        for (int[] permutation : listOfPermutation) {
-            List<Double> operands = new LinkedList<>();
-            for (int digit : permutation) {
-                operands.add((double) digit);
+            List<int[]> listOfPermutation = fullPermute(digits);
+            int i = 0;
+            for (int[] permutation : listOfPermutation) {
+                List<Double> operands = new LinkedList<>();
+                for (int digit : permutation) {
+                    operands.add((double) digit);
+                }
+                List<String> solutions = calculateTwentyFour(operands);
+                for (String equation : solutions) {
+                    i++;
+                    System.out.println(i + ": " + equation);
+                }
             }
-            List<String> solutions = calculateTwentyFour(operands);
-            for (String equation : solutions) {
-                i++;
-                System.out.println(i + ": " + equation);
-            }
+            System.out.println();
         }
     }
 
@@ -56,7 +55,7 @@ public class TwentyFourPoint {
             if (result.equals(Double.NaN)) {
                 return;
             }
-            if (TWENTY_FOUR.equals(BigDecimal.valueOf(result))) {
+            if (Math.abs(24.0d - result) < 0.000000001d) {
                 solutions.add((Stack<String>) operators.clone());
             }
             return;
